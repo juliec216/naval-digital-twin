@@ -1,0 +1,27 @@
+{
+  "name": "naval-digital-twin",
+  "version": "1.0.0",
+  "description": "Naval Ravikant digital twin AI agent with iMessage integration",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "send-now": "tsx src/index.ts --send-now",
+    "dev": "tsx watch src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.82.0",
+    "@photon-ai/advanced-imessage-kit": "^1.14.3",
+    "dotenv": "^17.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  }
+}
