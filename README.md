@@ -1,8 +1,6 @@
 # naval-digital-twin
 
-Naval Ravikant has become a kind of compass for a generation of builders. His writing on wealth, happiness, and clear thinking is passed around like scripture in tech and investing circles — a few hundred sentences that have rewired how a lot of people approach their careers, money, and minds.
-
-Have you ever wished you had a mentor on call? Someone you could text at 11pm when you're stuck on a career decision, or at 7am when you can't shake the anxiety of too many things you want to do at once? Someone who'd answer in plain words, with no jargon, no hedging — just the thinking framework, then it's up to you?
+Have you ever wished you had a mentor on call? Someone you could text at 11pm when you're stuck on a career decision, or at 7am when you can't shake the anxiety of too many things you want to do at once? 
 
 That's what this is.
 
@@ -10,7 +8,7 @@ That's what this is.
 
 Four times a day, on your local schedule, it texts you a single thought to chew on. Anytime in between, it's there to talk. Career calls, investment decisions, the relationship you're not sure about, the book you can't finish — anything in his domain.
 
-It's not the real Naval. It's a faithful echo, built carefully from his public work, designed to feel like the kind of conversation he'd actually have.
+It's not the real Naval. It's a faithful echo.
 
 ---
 
