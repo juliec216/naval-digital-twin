@@ -1,5 +1,5 @@
 import { AdvancedIMessageKit } from "@photon-ai/advanced-imessage-kit";
-import { getActiveUsers, markQuoteSent } from "../knowledge/active-users";
+import { ActiveUser, getActiveUsers, markQuoteSent } from "../knowledge/active-users";
 import { getRandomQuote } from "../rag/vectorstore";
 
 const ENGAGEMENT_QUESTIONS: Record<string, string[]> = {
@@ -40,49 +40,55 @@ const ENGAGEMENT_QUESTIONS: Record<string, string[]> = {
   ],
 };
 
+const TOPIC_LABEL: Record<string, string> = {
+  wealth: "Wealth",
+  happiness: "Happiness",
+  philosophy: "Philosophy",
+  decision_making: "Decision Making",
+  reading: "Reading",
+  relationships: "Relationships",
+  startups: "Startups",
+};
+
 function pickQuestion(topic: string): string {
   const questions = ENGAGEMENT_QUESTIONS[topic] || ENGAGEMENT_QUESTIONS.philosophy;
   return questions[Math.floor(Math.random() * questions.length)];
 }
 
+export async function sendQuoteToUser(
+  sdk: AdvancedIMessageKit,
+  user: ActiveUser
+): Promise<boolean> {
+  const quote = getRandomQuote(user.quotesReceived);
+  if (!quote) return false;
+
+  const question = pickQuestion(quote.topic);
+  const message = `Naval's Daily Insight — ${TOPIC_LABEL[quote.topic] || quote.topic}\n\n"${quote.text}"\n\n${question}`;
+
+  try {
+    await sdk.messages.sendMessage({
+      chatGuid: user.chatGuid,
+      message,
+    });
+    markQuoteSent(user.handle, quote.id);
+    console.log(`Sent quote to ${user.handle}: "${quote.text.slice(0, 50)}..."`);
+    return true;
+  } catch (err) {
+    console.error(`Failed to send quote to ${user.handle}:`, err);
+    return false;
+  }
+}
+
 export async function sendDailyQuotes(sdk: AdvancedIMessageKit): Promise<void> {
-  const activeUsers = getActiveUsers();
+  const activeUsers = getActiveUsers().filter((u) => u.onboardingComplete);
 
   if (activeUsers.length === 0) {
-    console.log("No active users to send daily quotes to.");
+    console.log("No onboarded active users to send daily quotes to.");
     return;
   }
 
   console.log(`Sending daily quotes to ${activeUsers.length} active user(s)...`);
-
   for (const user of activeUsers) {
-    const quote = getRandomQuote(user.quotesReceived);
-    if (!quote) continue;
-
-    const question = pickQuestion(quote.topic);
-
-    const topicLabel: Record<string, string> = {
-      wealth: "Wealth",
-      happiness: "Happiness",
-      philosophy: "Philosophy",
-      decision_making: "Decision Making",
-      reading: "Reading",
-      relationships: "Relationships",
-      startups: "Startups",
-    };
-
-    const message = `Naval's Daily Insight — ${topicLabel[quote.topic] || quote.topic}\n\n"${quote.text}"\n\n${question}`;
-
-    try {
-      await sdk.messages.sendMessage({
-        chatGuid: user.chatGuid,
-        message,
-      });
-
-      markQuoteSent(user.handle, quote.id);
-      console.log(`Sent quote to ${user.handle}: "${quote.text.slice(0, 50)}..."`);
-    } catch (err) {
-      console.error(`Failed to send quote to ${user.handle}:`, err);
-    }
+    await sendQuoteToUser(sdk, user);
   }
 }

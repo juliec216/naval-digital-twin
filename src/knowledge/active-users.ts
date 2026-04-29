@@ -7,7 +7,11 @@ export interface ActiveUser {
   chatGuid: string;
   firstSeen: number;
   lastInteraction: number;
-  quotesReceived: string[]; // IDs of quotes already sent
+  quotesReceived: string[];
+  timezoneOffsetMinutes: number | null;
+  onboardingComplete: boolean;
+  lastQuoteDate: string | null;
+  slotsSentToday: number[];
 }
 
 const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH || path.join(__dirname, "../../data");
@@ -20,10 +24,26 @@ function ensureDataDir(): void {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 }
 
+function withDefaults(raw: Partial<ActiveUser> & { handle: string; chatGuid: string }): ActiveUser {
+  return {
+    handle: raw.handle,
+    chatGuid: raw.chatGuid,
+    firstSeen: raw.firstSeen ?? Date.now(),
+    lastInteraction: raw.lastInteraction ?? Date.now(),
+    quotesReceived: raw.quotesReceived ?? [],
+    timezoneOffsetMinutes: raw.timezoneOffsetMinutes ?? null,
+    onboardingComplete: raw.onboardingComplete ?? false,
+    lastQuoteDate: raw.lastQuoteDate ?? null,
+    slotsSentToday: raw.slotsSentToday ?? [],
+  };
+}
+
 export function loadActiveUsers(): void {
   try {
     const data = JSON.parse(fs.readFileSync(STORE_PATH, "utf-8"));
-    users = new Map(Object.entries(data));
+    users = new Map(
+      Object.entries(data).map(([handle, raw]) => [handle, withDefaults(raw as ActiveUser)])
+    );
   } catch {
     users = new Map();
   }
@@ -37,21 +57,26 @@ function save(): void {
   );
 }
 
-export function registerInteraction(handle: string, chatGuid: string): void {
+export function registerInteraction(handle: string, chatGuid: string): ActiveUser {
   const existing = users.get(handle);
   if (existing) {
     existing.lastInteraction = Date.now();
     existing.chatGuid = chatGuid;
-  } else {
-    users.set(handle, {
-      handle,
-      chatGuid,
-      firstSeen: Date.now(),
-      lastInteraction: Date.now(),
-      quotesReceived: [],
-    });
-    console.log(`New active user: ${handle}`);
+    save();
+    return existing;
   }
+  const user = withDefaults({ handle, chatGuid });
+  users.set(handle, user);
+  console.log(`New active user: ${handle}`);
+  save();
+  return user;
+}
+
+export function setUserTimezone(handle: string, offsetMinutes: number): void {
+  const user = users.get(handle);
+  if (!user) return;
+  user.timezoneOffsetMinutes = offsetMinutes;
+  user.onboardingComplete = true;
   save();
 }
 
@@ -59,6 +84,29 @@ export function markQuoteSent(handle: string, quoteId: string): void {
   const user = users.get(handle);
   if (user) {
     user.quotesReceived.push(quoteId);
+    save();
+  }
+}
+
+export function markSlotSent(handle: string, dateStr: string, slotIndex: number): void {
+  const user = users.get(handle);
+  if (!user) return;
+  if (user.lastQuoteDate !== dateStr) {
+    user.lastQuoteDate = dateStr;
+    user.slotsSentToday = [];
+  }
+  if (!user.slotsSentToday.includes(slotIndex)) {
+    user.slotsSentToday.push(slotIndex);
+  }
+  save();
+}
+
+export function resetDayIfNeeded(handle: string, dateStr: string): void {
+  const user = users.get(handle);
+  if (!user) return;
+  if (user.lastQuoteDate !== dateStr) {
+    user.lastQuoteDate = dateStr;
+    user.slotsSentToday = [];
     save();
   }
 }
