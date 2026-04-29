@@ -20,8 +20,11 @@ export async function initVectorStore(): Promise<void> {
   const tweets: Quote[] = JSON.parse(
     fs.readFileSync(path.join(sourcesDir, "twitter-quotes.json"), "utf-8")
   );
+  const skill: Quote[] = JSON.parse(
+    fs.readFileSync(path.join(sourcesDir, "naval-skill-quotes.json"), "utf-8")
+  );
 
-  allQuotes = [...almanack, ...tweets];
+  allQuotes = [...almanack, ...tweets, ...skill];
   console.log(`Knowledge base loaded: ${allQuotes.length} quotes.`);
 }
 

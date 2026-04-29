@@ -33,6 +33,9 @@ export function getQuotesByTopic(topic: string): Quote[] {
   const tweets: Quote[] = JSON.parse(
     fs.readFileSync(path.join(sourcesDir, "twitter-quotes.json"), "utf-8")
   );
+  const skill: Quote[] = JSON.parse(
+    fs.readFileSync(path.join(sourcesDir, "naval-skill-quotes.json"), "utf-8")
+  );
 
-  return [...almanack, ...tweets].filter((q) => q.topic === topic);
+  return [...almanack, ...tweets, ...skill].filter((q) => q.topic === topic);
 }

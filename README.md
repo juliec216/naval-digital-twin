@@ -60,3 +60,7 @@ npm run build        # tsc to dist/
 docker build -t naval-digital-twin .
 docker run --env-file .env naval-digital-twin
 ```
+
+## Credits
+
+The system prompt and a portion of the quotes corpus are adapted from [alchaincyf/naval-skill](https://github.com/alchaincyf/naval-skill) (MIT). See `THIRD_PARTY_LICENSES.md` for the full notice.
