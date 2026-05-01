@@ -3,3 +3,5 @@ dist/
 .env
 data/
 vendored/
+photos for website/
+.DS_Store
