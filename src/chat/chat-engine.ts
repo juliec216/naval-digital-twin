@@ -34,7 +34,7 @@ export async function generateReply(
 
   const response = await anthropic.messages.create({
     model: "claude-sonnet-4-6",
-    max_tokens: 1024,
+    max_tokens: 240,
     system: NAVAL_SYSTEM_PROMPT,
     messages,
   });

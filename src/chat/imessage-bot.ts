@@ -50,16 +50,26 @@ function stripMarkdown(text: string): string {
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
 }
 
+const MAX_MESSAGES_PER_REPLY = 2;
+
 async function sendMultiPart(
   sdk: AdvancedIMessageKit,
   chatGuid: string,
   text: string
 ): Promise<void> {
-  const parts = text.split("\n\n").filter((p) => p.trim());
+  const paragraphs = text.split("\n\n").map((p) => p.trim()).filter(Boolean);
+  const parts =
+    paragraphs.length <= MAX_MESSAGES_PER_REPLY
+      ? paragraphs
+      : [
+          paragraphs[0],
+          paragraphs.slice(1).join(" "),
+        ];
+
   for (const part of parts) {
     await sdk.messages.sendMessage({
       chatGuid,
-      message: stripMarkdown(part.trim()),
+      message: stripMarkdown(part),
     });
   }
 }
