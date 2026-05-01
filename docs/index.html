@@ -9,6 +9,7 @@
 <meta property="og:description" content="A direct line for questions on wealth, happiness, work, books, and decisions." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://naval.chat" />
+<meta property="og:image" content="https://naval.chat/img/naval-portrait.jpg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -19,7 +20,6 @@
     --paper-deep: #ece2d0;
     --muted: #6b6358;
     --hairline: rgba(26, 23, 21, 0.12);
-    --accent: #1a1715;
   }
   * { box-sizing: border-box; }
   html, body {
@@ -39,13 +39,12 @@
     background-attachment: fixed;
     min-height: 100vh;
   }
-  /* subtle paper grain */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
     pointer-events: none;
-    opacity: 0.35;
+    opacity: 0.32;
     mix-blend-mode: multiply;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.06  0 0 0 0 0.05  0 0 0 0 0.04  0 0 0 0.18 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
     z-index: 0;
@@ -55,7 +54,7 @@
     z-index: 1;
     max-width: 38rem;
     margin: 0 auto;
-    padding: 5.5rem 1.5rem 5rem;
+    padding: 5.5rem 1.5rem 4rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -75,19 +74,31 @@
     font-size: clamp(3rem, 9vw, 4.75rem);
     line-height: 0.98;
     letter-spacing: -0.015em;
-    margin: 0 0 1.75rem;
+    margin: 0 0 2rem;
     font-weight: 500;
   }
-  h1 em {
-    font-style: italic;
-    font-weight: 400;
-    color: var(--ink);
+  .portrait {
+    width: clamp(180px, 28vw, 220px);
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 0 2.25rem;
+    box-shadow:
+      0 0 0 1px var(--hairline),
+      0 18px 36px -16px rgba(26, 23, 21, 0.35);
+    background: var(--paper-deep);
+  }
+  .portrait img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
   }
   .lede {
     font-size: 1.18rem;
     color: var(--ink);
     opacity: 0.78;
-    margin: 0 0 3rem;
+    margin: 0 0 2.75rem;
     max-width: 30rem;
     font-weight: 400;
     line-height: 1.5;
@@ -127,13 +138,19 @@
     font-style: italic;
     max-width: 26rem;
   }
+  .phone {
+    margin: 0.85rem 0 0;
+    color: var(--muted);
+    font-family: "Inter", sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.16em;
+  }
 
   .pull {
     margin: 5rem 0 0;
-    padding: 0 0.5rem;
+    padding: 3rem 0.5rem 0;
     max-width: 30rem;
     border-top: 1px solid var(--hairline);
-    padding-top: 3rem;
   }
   blockquote {
     margin: 0;
@@ -165,58 +182,135 @@
     color: var(--muted);
   }
 
-  .qr {
-    margin-top: 4.5rem;
+  /* Showcase: full-bleed auto-scrolling chat-screenshot gallery */
+  .showcase {
+    position: relative;
+    z-index: 1;
+    width: 100vw;
+    margin: 5rem 0 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+            mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+  }
+  .showcase-eyebrow {
+    text-align: center;
+    margin: 0 0 2rem;
+  }
+  .showcase-track {
+    display: flex;
+    gap: 1.75rem;
+    width: max-content;
+    padding: 0.5rem 1rem 1.5rem;
+    animation: roll 38s linear infinite;
+  }
+  .showcase:hover .showcase-track,
+  .showcase:focus-within .showcase-track {
+    animation-play-state: paused;
+  }
+  .showcase-card {
+    flex: 0 0 auto;
+    width: 280px;
+    height: 540px;
+    border-radius: 26px;
+    overflow: hidden;
+    background: var(--paper-deep);
+    box-shadow:
+      0 0 0 1px var(--hairline),
+      0 28px 60px -22px rgba(26, 23, 21, 0.28);
+  }
+  .showcase-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  @keyframes roll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .showcase-track { animation: none; overflow-x: auto; scroll-snap-type: x mandatory; }
+    .showcase-card { scroll-snap-align: center; }
+  }
+
+  .send-block {
+    position: relative;
+    z-index: 1;
+    margin: 4rem auto 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.85rem;
-  }
-  .qr-frame {
-    background: rgba(255, 251, 242, 0.6);
-    border: 1px solid var(--hairline);
-    border-radius: 14px;
-    padding: 1rem;
-    backdrop-filter: blur(2px);
-  }
-  .qr img {
-    width: 168px;
-    height: 168px;
-    display: block;
-  }
-  .qr-label {
-    font-size: 0.78rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-family: "Inter", sans-serif;
   }
 
-  .meta {
-    margin-top: 5.5rem;
-    font-size: 0.82rem;
+  /* Footer */
+  footer {
+    position: relative;
+    z-index: 1;
+    margin: 6rem auto 0;
+    max-width: 38rem;
+    padding: 0 1.5rem 4rem;
+    text-align: center;
+  }
+  .powered {
+    margin: 0 0 2.5rem;
+  }
+  .powered-label {
+    font-family: "Inter", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .powered-link {
+    font-family: "EB Garamond", serif;
+    font-style: italic;
+    font-size: 1.35rem;
+    font-weight: 500;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: -0.005em;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 0.15rem;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .powered-link:hover {
+    border-bottom-color: var(--ink);
+  }
+  .footer-divider {
+    border: 0;
+    border-top: 1px solid var(--hairline);
+    width: 3rem;
+    margin: 0 auto 2rem;
+  }
+  .tribute {
+    font-size: 0.78rem;
     color: var(--muted);
     font-family: "Inter", sans-serif;
-    max-width: 28rem;
     line-height: 1.65;
+    max-width: 28rem;
+    margin: 0 auto;
+    opacity: 0.85;
   }
-  .meta a {
+  .tribute a {
     color: var(--muted);
     text-decoration: none;
     border-bottom: 1px solid rgba(107, 99, 88, 0.4);
     transition: color 0.15s ease, border-color 0.15s ease;
   }
-  .meta a:hover {
+  .tribute a:hover {
     color: var(--ink);
     border-bottom-color: var(--ink);
   }
 
-  /* Mobile: hide QR (phones have a click button), tighten spacing */
   @media (max-width: 640px) {
-    .qr { display: none; }
-    main { padding: 4rem 1.25rem 4rem; }
+    main { padding: 4rem 1.25rem 3rem; }
     .pull { margin-top: 4rem; padding-top: 2.5rem; }
     blockquote { font-size: 1.2rem; }
+    .showcase { margin-top: 4rem; }
+    .showcase-card { width: 240px; height: 460px; }
+    footer { margin-top: 4.5rem; padding-bottom: 3rem; }
   }
 </style>
 </head>
@@ -224,7 +318,11 @@
 <main>
   <p class="eyebrow">naval.chat</p>
 
-  <h1>Text <em>Naval.</em></h1>
+  <h1>Text Naval.</h1>
+
+  <figure class="portrait" aria-hidden="true">
+    <img src="img/naval-portrait.jpg" alt="" />
+  </figure>
 
   <p class="lede">
     A direct line for the questions you'd ask a wise friend at 11pm — wealth, happiness, work, books, decisions, the things you're stuck on.
@@ -242,17 +340,35 @@
       <cite>— Naval Ravikant</cite>
     </blockquote>
   </aside>
-
-  <div class="qr" aria-label="QR code linking to Naval text thread">
-    <div class="qr-frame">
-      <img src="qr.svg" alt="QR code — scan with your phone to text Naval" />
-    </div>
-    <span class="qr-label">Scan with your phone</span>
-  </div>
-
-  <p class="meta">
-    An unofficial tribute. Not affiliated with Naval Ravikant. Built from his public writings and adapted from <a href="https://github.com/alchaincyf/naval-skill">naval-skill</a> (MIT). Source on <a href="https://github.com/juliec216/naval-digital-twin">GitHub</a>. Powered by <a href="https://photon.codes">photon.codes</a>.
-  </p>
 </main>
+
+<section class="showcase" aria-label="Conversation excerpts">
+  <p class="eyebrow showcase-eyebrow">From recent threads</p>
+  <div class="showcase-track">
+    <figure class="showcase-card"><img src="img/chat-1.jpg" alt="A user asking Naval whether to work in big tech or be a full-time influencer." /></figure>
+    <figure class="showcase-card"><img src="img/chat-2.png" alt="A user asking Naval whether to quit their job, with Naval's reply about leverage and not picking a container before knowing what fills it." /></figure>
+    <figure class="showcase-card"><img src="img/chat-3.jpg" alt="Naval's daily insights on philosophy and wealth, with reflective questions." /></figure>
+    <!-- duplicates for seamless loop -->
+    <figure class="showcase-card" aria-hidden="true"><img src="img/chat-1.jpg" alt="" /></figure>
+    <figure class="showcase-card" aria-hidden="true"><img src="img/chat-2.png" alt="" /></figure>
+    <figure class="showcase-card" aria-hidden="true"><img src="img/chat-3.jpg" alt="" /></figure>
+  </div>
+</section>
+
+<div class="send-block">
+  <a class="cta" href="sms:+16284885732?&body=Hi">Send a Text</a>
+  <p class="phone">(628) 488-5732</p>
+</div>
+
+<footer>
+  <div class="powered">
+    <div class="powered-label">Powered by</div>
+    <a class="powered-link" href="https://photon.codes">photon.codes</a>
+  </div>
+  <hr class="footer-divider" />
+  <p class="tribute">
+    An unofficial tribute. Not affiliated with Naval Ravikant. Built from his public writings and adapted from <a href="https://github.com/alchaincyf/naval-skill">naval-skill</a> (MIT). Source on <a href="https://github.com/juliec216/naval-digital-twin">GitHub</a>.
+  </p>
+</footer>
 </body>
 </html>
