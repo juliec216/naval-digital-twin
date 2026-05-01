@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { config } from "../config";
+import { nowInUserTz } from "../onboarding/timezone";
 
 export interface ActiveUser {
   handle: string;
@@ -77,6 +78,14 @@ export function setUserTimezone(handle: string, offsetMinutes: number): void {
   if (!user) return;
   user.timezoneOffsetMinutes = offsetMinutes;
   user.onboardingComplete = true;
+
+  const local = nowInUserTz(offsetMinutes, new Date());
+  user.lastQuoteDate = local.dateStr;
+  user.slotsSentToday = config.dailyQuote.slots
+    .map((slot, i) => ({ i, minutes: slot.hour * 60 + slot.minute }))
+    .filter((s) => s.minutes < local.minutesOfDay)
+    .map((s) => s.i);
+
   save();
 }
 
