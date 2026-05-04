@@ -13,6 +13,7 @@ export interface ActiveUser {
   onboardingComplete: boolean;
   lastQuoteDate: string | null;
   slotsSentToday: number[];
+  pauseNoticeSent: boolean;
 }
 
 const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH || path.join(__dirname, "../../data");
@@ -36,6 +37,7 @@ function withDefaults(raw: Partial<ActiveUser> & { handle: string; chatGuid: str
     onboardingComplete: raw.onboardingComplete ?? false,
     lastQuoteDate: raw.lastQuoteDate ?? null,
     slotsSentToday: raw.slotsSentToday ?? [],
+    pauseNoticeSent: raw.pauseNoticeSent ?? false,
   };
 }
 
@@ -63,6 +65,7 @@ export function registerInteraction(handle: string, chatGuid: string): ActiveUse
   if (existing) {
     existing.lastInteraction = Date.now();
     existing.chatGuid = chatGuid;
+    existing.pauseNoticeSent = false;
     save();
     return existing;
   }
@@ -118,6 +121,29 @@ export function resetDayIfNeeded(handle: string, dateStr: string): void {
     user.slotsSentToday = [];
     save();
   }
+}
+
+export function getInactiveUsersNeedingNotice(): ActiveUser[] {
+  const threshold =
+    Date.now() - config.dailyQuote.inactivityDays * 24 * 60 * 60 * 1000;
+  const result: ActiveUser[] = [];
+  for (const user of users.values()) {
+    if (
+      user.onboardingComplete &&
+      user.lastInteraction < threshold &&
+      !user.pauseNoticeSent
+    ) {
+      result.push(user);
+    }
+  }
+  return result;
+}
+
+export function markPauseNoticeSent(handle: string): void {
+  const user = users.get(handle);
+  if (!user) return;
+  user.pauseNoticeSent = true;
+  save();
 }
 
 export function getActiveUsers(): ActiveUser[] {

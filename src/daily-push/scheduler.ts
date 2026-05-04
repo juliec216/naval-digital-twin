@@ -1,10 +1,37 @@
 import { AdvancedIMessageKit } from "@photon-ai/advanced-imessage-kit";
 import { config } from "../config";
-import { getActiveUsers, markSlotSent, resetDayIfNeeded } from "../knowledge/active-users";
+import {
+  getActiveUsers,
+  getInactiveUsersNeedingNotice,
+  markPauseNoticeSent,
+  markSlotSent,
+  resetDayIfNeeded,
+} from "../knowledge/active-users";
 import { nowInUserTz } from "../onboarding/timezone";
 import { sendQuoteToUser } from "./sender";
 
+const PAUSE_NOTICE =
+  "You seem probably busy. Should I keep quiet until you write back? But I will be always here for you. Keep thinking.";
+
+async function sendPauseNotices(sdk: AdvancedIMessageKit): Promise<void> {
+  const users = getInactiveUsersNeedingNotice();
+  for (const user of users) {
+    try {
+      await sdk.messages.sendMessage({
+        chatGuid: user.chatGuid,
+        message: PAUSE_NOTICE,
+      });
+      markPauseNoticeSent(user.handle);
+      console.log(`Sent pause notice to ${user.handle}.`);
+    } catch (err) {
+      console.error(`Failed to send pause notice to ${user.handle}:`, err);
+    }
+  }
+}
+
 async function tick(sdk: AdvancedIMessageKit): Promise<void> {
+  await sendPauseNotices(sdk);
+
   const nowUtc = new Date();
   const slots = config.dailyQuote.slots;
   const users = getActiveUsers();
