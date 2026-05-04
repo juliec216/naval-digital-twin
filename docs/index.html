@@ -314,9 +314,63 @@
     .showcase-card { width: 240px; height: 460px; }
     footer { margin-top: 4.5rem; padding-bottom: 3rem; }
   }
+
+  /* In-app-browser banner (Twitter/Instagram/Facebook/LinkedIn) */
+  .inapp-banner {
+    position: relative;
+    z-index: 2;
+    display: none;
+    margin: 0 auto;
+    padding: 0.75rem 1.25rem;
+    background: rgba(26, 23, 21, 0.94);
+    color: var(--paper);
+    text-align: center;
+    font-family: "Inter", sans-serif;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    letter-spacing: 0.005em;
+  }
+  .inapp-banner.show { display: block; }
+  .inapp-banner strong { font-weight: 600; }
+  .inapp-banner a {
+    color: var(--paper);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    margin-left: 0.4rem;
+    font-weight: 500;
+  }
+
+  /* Phone number is now an interactive copy button */
+  .phone {
+    margin: 0.85rem 0 0;
+    color: var(--muted);
+    font-family: "Inter", sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.16em;
+    background: none;
+    border: 1px dashed transparent;
+    border-radius: 8px;
+    padding: 0.35rem 0.7rem;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  }
+  .phone:hover, .phone:focus {
+    color: var(--ink);
+    border-color: var(--hairline);
+    background: rgba(255, 251, 242, 0.5);
+    outline: none;
+  }
+  .phone.copied {
+    color: var(--ink);
+    border-color: var(--ink);
+    background: rgba(255, 251, 242, 0.7);
+  }
 </style>
 </head>
 <body>
+<div class="inapp-banner" id="inappBanner" role="status" aria-live="polite">
+  Buttons may not open Messages from inside this app. <strong>Open in your browser</strong> — or tap the number below to copy it.
+</div>
 <main>
   <p class="eyebrow">naval.chat</p>
 
@@ -330,7 +384,7 @@
     A direct line for the questions you'd ask a wise friend at 11pm — wealth, happiness, work, books, decisions, the things you're stuck on.
   </p>
 
-  <a class="cta" href="sms:+16284885732?&body=Hi">Start the conversation</a>
+  <a class="cta" href="sms:+16284885732?body=Hi">Start the conversation</a>
 
   <p class="topics">
     Four short thoughts a day, on your local schedule. Two days quiet from you and the daily ones pause.
@@ -368,8 +422,8 @@
 </section>
 
 <div class="send-block">
-  <a class="cta" href="sms:+16284885732?&body=Hi">Send a Text</a>
-  <p class="phone">(628) 488-5732</p>
+  <a class="cta" href="sms:+16284885732?body=Hi">Send a Text</a>
+  <button type="button" class="phone" id="phoneCopy" aria-label="Tap to copy the phone number">(628) 488-5732</button>
 </div>
 
 <footer>
@@ -386,5 +440,44 @@
     An unofficial tribute. Not affiliated with Naval Ravikant. Built from his public writings and adapted from <a href="https://github.com/alchaincyf/naval-skill">naval-skill</a> (MIT). Source on <a href="https://github.com/juliec216/naval-digital-twin">GitHub</a>.
   </p>
 </footer>
+
+<script>
+(function () {
+  // 1. Detect in-app browsers (Twitter, Instagram, Facebook, LinkedIn,
+  //    Snapchat, TikTok, Line, WeChat, generic Android WebView).
+  var ua = navigator.userAgent || "";
+  var inApp = /(Twitter|FBAN|FBAV|Instagram|LinkedInApp|Snapchat|musical_ly|TikTok|Line\/|MicroMessenger|; wv\))/i.test(ua);
+  if (inApp) document.getElementById("inappBanner").classList.add("show");
+
+  // 2. Tap-to-copy phone number.
+  var phoneBtn = document.getElementById("phoneCopy");
+  var raw = "+16284885732";
+  function flash() {
+    var original = phoneBtn.textContent;
+    phoneBtn.classList.add("copied");
+    phoneBtn.textContent = "Copied — paste in Messages";
+    setTimeout(function () {
+      phoneBtn.classList.remove("copied");
+      phoneBtn.textContent = original;
+    }, 1800);
+  }
+  phoneBtn.addEventListener("click", function () {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(raw).then(flash).catch(function () {
+        // Fallback: select and copy via textarea (older Safari, some webviews).
+        var ta = document.createElement("textarea");
+        ta.value = raw;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "absolute";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); flash(); } catch (e) {}
+        document.body.removeChild(ta);
+      });
+    }
+  });
+})();
+</script>
 </body>
 </html>
